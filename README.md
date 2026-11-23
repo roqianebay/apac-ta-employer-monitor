@@ -1,10 +1,8 @@
-# APAC TA Employer Monitor
+# APAC ER News Update V2.0
 
-亚太区人才招聘（TA）竞品与雇主动态看板：公司矩阵、签证政策摘要、薪酬对标示意、时间线动态等。**数据为示意**，发布前请按业务需要更新 `web/index.html` 中的内嵌 JSON。
+亚太员工关系（ER）资讯看板：**裁员、团队优化、补偿金/遣散方案**，区分 **500 强外企** 与 **其他知名企业**。
 
 ## 本地预览
-
-双击 `web/index.html`，或：
 
 ```powershell
 cd web
@@ -12,8 +10,12 @@ python -m http.server 8766
 # http://127.0.0.1:8766/
 ```
 
-## 发布到 GitHub Pages
+## 公网地址
 
-详见 [DEPLOY-GITHUB.md](DEPLOY-GITHUB.md)。
+https://roqianebay.github.io/apac-ta-employer-monitor/
 
-公网地址格式：`https://<你的用户名>.github.io/apac-ta-employer-monitor/`
+更新 `web/index.html` 后 `git push` 即自动重新部署（GitHub Actions）。
+
+## 数据说明
+
+内嵌数据为公开信息与 ER 实务要点的**汇编示意**，办理个案请以劳动合同、解除协议与当地劳动法为准。
