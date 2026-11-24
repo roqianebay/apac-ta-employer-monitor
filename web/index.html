@@ -349,8 +349,6 @@
     .hub-footer { display: flex; flex-wrap: wrap; gap: 0.75rem; }
     .hub-footer a { color: var(--accent-light); }
   </style>
-  <script src="js/er-news-lang.js"></script>
-  <script src="js/er-news-i18n-overlay.js"></script>
 </head>
 <body>
   <header class="header">
@@ -507,9 +505,13 @@
       <a href="https://roqianebay.github.io/apac-labor-hr-practice/" id="ui-hub-labor">流程与劳动法</a>
       <a href="https://roqianebay.github.io/apac-ta-employer-policy-monitor/" id="ui-hub-talent">Talent Employer Monitor</a>
       <a href="https://roqianebay.github.io/apac-policy-monitor/" id="ui-hub-gov">政府政策 Monitor</a>
+      <a href="https://roqianebay.github.io/apac-labor-hr-practice/benefits-monitor/" id="ui-hub-benefits">法定福利</a>
     </div>
   </footer>
 
+  <script src="js/er-news-lang.js"></script>
+  <script src="js/er-news-i18n-overlay.js"></script>
+  <script src="js/er-news-content-en.js"></script>
   <script>
     /** @type {{title:string,publisher?:string,url:string,type?:string}[]} */
     const INDEX_PUBLISHERS = ["Reuters", "Bloomberg", "官方", "法规"];
@@ -885,6 +887,15 @@
       ]}
     ];
 
+    if (window.__applyErNewsContentEn) {
+      window.__applyErNewsContentEn({
+        F500_PROFILES,
+        NOTABLE_PROFILES,
+        SEVERANCE_TABLE,
+        LEGAL_BASELINE
+      });
+    }
+
     const MARKET_NAMES = { SG: "新加坡", AU: "澳大利亚", JP: "日本", KR: "韩国", CN: "中国大陆", TW: "台湾", HK: "香港", IN: "印度", MY: "马来西亚", ID: "印尼", VN: "越南", PH: "菲律宾" };
 
     const LEGAL_REF_INDEX = {
@@ -926,7 +937,9 @@
       if (!list.length) return "";
       const links = list.map(r => {
         const cls = r.kind === "search" ? ' class="search-hint"' : "";
-        const text = escapeAttr(r.publisher ? r.publisher + " · " + r.title : r.title);
+        const EL = window.ErNewsLang;
+        const pub = EL && r.publisher ? EL.publisherLabel(r.publisher) : r.publisher;
+        const text = escapeAttr(pub ? pub + " · " + r.title : r.title);
         return `<a href="${escapeAttr(r.url)}"${cls} target="_blank" rel="noopener noreferrer" title="${escapeAttr(r.url)}">${text}</a>`;
       }).join("");
       return `<div class="source-links"><div class="src-kind">${label || "原文 / 搜索链接"}</div>${links}</div>`;
@@ -954,14 +967,16 @@
     }
 
     function buildSearchRefs(query, opts) {
+      const EL = window.ErNewsLang;
       const q = encodeURIComponent(query);
       const refs = [
-        { publisher: "Google News", title: "搜索相关报道", url: `https://news.google.com/search?q=${q}`, kind: "search" },
-        { publisher: "Reuters", title: "站内搜索", url: `https://www.reuters.com/site-search/?query=${q}`, kind: "search" }
+        { publisher: "Google News", title: EL ? EL.t(EL.UI.searchRelated) : "搜索相关报道", url: `https://news.google.com/search?q=${q}`, kind: "search" },
+        { publisher: "Reuters", title: EL ? EL.t(EL.UI.searchSite) : "站内搜索", url: `https://www.reuters.com/site-search/?query=${q}`, kind: "search" }
       ];
       if (opts && opts.marketName) {
         const q2 = encodeURIComponent(`${query} ${opts.marketName}`);
-        refs.push({ publisher: "Google", title: `搜索 · ${opts.marketName}`, url: `https://www.google.com/search?q=${q2}&tbm=nws`, kind: "search" });
+        const t = EL ? EL.t(EL.UI.searchMarket) : "搜索";
+        refs.push({ publisher: "Google", title: `${t} · ${opts.marketName}`, url: `https://www.google.com/search?q=${q2}&tbm=nws`, kind: "search" });
       }
       return refs;
     }
@@ -1086,13 +1101,13 @@
               <div><h3>${p.company}</h3><div class="sector">${p.sector} · ${p.markets.map(m => (EL ? EL.marketName(m) : MARKET_NAMES[m]) || m).join(" · ")}</div></div>
             </div>
           </div>
-          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kLastEvent) : "最近事件"}</span><div>${p.lastEvent}</div></div>
-          <div><span class="k">${EL ? EL.t(EL.UI.kTeams) : "涉及团队"}</span><div>${p.teams || "—"}</div></div></div>
-          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kApac) : "APAC 要点"}</span><div>${p.apacNote || "—"}</div></div></div>
-          <div class="severance-block"><strong>${EL ? EL.t(EL.UI.sevBlock) : "补偿 / 遣散框架"}</strong>${p.severance}</div>
-          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kExtras) : "附加支持"}</span><div>${p.extras || "—"}</div></div>
-          <div><span class="k">${EL ? EL.t(EL.UI.kRisk) : "ER 风险"}</span><div>${p.risk || "—"}</div></div></div>
-          <div class="notes"><strong>${EL ? EL.t(EL.UI.kSource) : "摘要来源"}：</strong>${p.source}</div>
+          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kLastEvent) : "最近事件"}</span><div>${EL ? EL.itemField(p, "lastEvent") : p.lastEvent}</div></div>
+          <div><span class="k">${EL ? EL.t(EL.UI.kTeams) : "涉及团队"}</span><div>${(EL ? EL.itemField(p, "teams") : p.teams) || "—"}</div></div></div>
+          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kApac) : "APAC 要点"}</span><div>${(EL ? EL.itemField(p, "apacNote") : p.apacNote) || "—"}</div></div></div>
+          <div class="severance-block"><strong>${EL ? EL.t(EL.UI.sevBlock) : "补偿 / 遣散框架"}</strong>${EL ? EL.itemField(p, "severance") : p.severance}</div>
+          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kExtras) : "附加支持"}</span><div>${(EL ? EL.itemField(p, "extras") : p.extras) || "—"}</div></div>
+          <div><span class="k">${EL ? EL.t(EL.UI.kRisk) : "ER 风险"}</span><div>${(EL ? EL.itemField(p, "risk") : p.risk) || "—"}</div></div></div>
+          <div class="notes"><strong>${EL ? EL.t(EL.UI.kSource) : "摘要来源"}：</strong>${EL ? EL.itemField(p, "source") : p.source}</div>
           ${renderRefLinks(profileRefs(p.company), EL ? EL.t(EL.UI.readExt) : "延伸报道 / 官方")}
         </div>`;
       }).join("");
@@ -1111,11 +1126,11 @@
           <td>${tierTag(r.tier)}</td>
           <td><div class="company-cell"><div class="company-avatar" style="background:${color}22;color:${color}">${getInitials(r.company)}</div>${r.company}</div></td>
           <td>${EL ? EL.marketName(r.market) : MARKET_NAMES[r.market] || r.market}</td>
-          <td>${r.scenario}</td>
-          <td>${r.formula}</td>
-          <td>${r.notice}</td>
-          <td>${r.equity}</td>
-          <td><span class="tag severance">${r.confidence}</span></td>
+          <td>${EL ? EL.itemField(r, "scenario") : r.scenario}</td>
+          <td>${EL ? EL.itemField(r, "formula") : r.formula}</td>
+          <td>${EL ? EL.itemField(r, "notice") : r.notice}</td>
+          <td>${EL ? EL.itemField(r, "equity") : r.equity}</td>
+          <td><span class="tag severance">${EL ? EL.itemField(r, "confidence") : r.confidence}</span></td>
           <td>${renderRefLinks(severanceRefs(r), EL ? EL.t(EL.UI.readLinks) : "链接")}</td>
         </tr>`;
       }).join("");
@@ -1123,12 +1138,19 @@
 
     function renderLegal() {
       const EL = window.ErNewsLang;
-      document.getElementById("legalGrid").innerHTML = LEGAL_BASELINE.map(l => `
+      document.getElementById("legalGrid").innerHTML = LEGAL_BASELINE.map(l => {
+        const country = EL && l.countryEn && EL.lang === "en" ? l.countryEn : l.country;
+        return `
         <div class="legal-card">
-          <h3><span>${l.flag}</span> ${l.country}</h3>
-          <ul>${l.points.map(p => `<li><strong>${p.k}：</strong>${p.v}</li>`).join("")}</ul>
+          <h3><span>${l.flag}</span> ${country}</h3>
+          <ul>${l.points.map(p => {
+            const k = EL ? EL.pointField(p, "k") : p.k;
+            const v = EL ? EL.pointField(p, "v") : p.v;
+            return `<li><strong>${k}：</strong>${v}</li>`;
+          }).join("")}</ul>
           ${renderRefLinks(LEGAL_REF_INDEX[l.code] || [], EL ? EL.t(EL.UI.readOfficial) : "官方法规 / 指引")}
-        </div>`).join("");
+        </div>`;
+      }).join("");
     }
 
     function renderIndexPanel() {

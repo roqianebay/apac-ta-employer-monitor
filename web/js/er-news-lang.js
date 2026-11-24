@@ -73,6 +73,10 @@
     hubLabor: L("流程与劳动法", "Process & labor law"),
     hubTalent: L("Talent Employer Monitor", "Talent Employer Monitor"),
     hubGov: L("政府政策 Monitor", "Gov policy monitor"),
+    hubBenefits: L("法定福利", "Statutory benefits"),
+    searchRelated: L("搜索相关报道", "Search related"),
+    searchSite: L("站内搜索", "Site search"),
+    searchMarket: L("搜索", "Search"),
     footer1: L(
       "APAC ER News Update V2.0 · 仅供 HR / ER 内部参考 · 不构成法律意见",
       "APAC ER News Update V2.0 · HR/ER internal reference only · not legal advice"
@@ -119,6 +123,16 @@
     const enKey = key + "En";
     if (state.lang === "en" && item[enKey]) return item[enKey];
     return item[key];
+  }
+
+  function pointField(p, key) {
+    return itemField(p, key);
+  }
+
+  function publisherLabel(pub) {
+    if (state.lang !== "en") return pub;
+    const m = { "官方": "Official", "法规": "Law", "Google News": "Google News", "Reuters": "Reuters" };
+    return m[pub] || pub;
   }
 
   function marketName(code) {
@@ -181,6 +195,8 @@
     setText("ui-hub-labor", t(UI.hubLabor));
     setText("ui-hub-talent", t(UI.hubTalent));
     setText("ui-hub-gov", t(UI.hubGov));
+    const hubBen = document.getElementById("ui-hub-benefits");
+    if (hubBen) setText("ui-hub-benefits", t(UI.hubBenefits));
     setText("ui-sev-title", t(UI.sevPanelTitle));
     setText("ui-sev-badge", t(UI.sevPanelBadge));
     setText("ui-index-title", t(UI.indexPanelTitle));
@@ -221,5 +237,5 @@
     applyChrome();
   }
 
-  global.ErNewsLang = { UI, t, itemField, marketName, tagLabel, tierLabel, init, get lang() { return state.lang; } };
+  global.ErNewsLang = { UI, t, itemField, pointField, publisherLabel, marketName, tagLabel, tierLabel, init, get lang() { return state.lang; } };
 })(window);
