@@ -69,7 +69,8 @@
     kRisk: L("ER 风险", "ER risk"),
     kSource: L("摘要来源", "Source summary"),
     sevBlock: L("补偿 / 遣散框架", "Severance framework"),
-    hubLabor: L("劳动法办案指南", "Labor & HR guide"),
+    hubIndex: L("看板总索引", "Dashboard index"),
+    hubLabor: L("流程与劳动法", "Process & labor law"),
     hubTalent: L("Talent Employer Monitor", "Talent Employer Monitor"),
     hubGov: L("政府政策 Monitor", "Gov policy monitor"),
     footer1: L(
@@ -176,6 +177,7 @@
     }
     setText("ui-footer-1", t(UI.footer1));
     setText("ui-footer-2", t(UI.footer2));
+    setText("ui-hub-index", t(UI.hubIndex));
     setText("ui-hub-labor", t(UI.hubLabor));
     setText("ui-hub-talent", t(UI.hubTalent));
     setText("ui-hub-gov", t(UI.hubGov));
