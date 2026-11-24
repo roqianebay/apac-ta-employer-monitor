@@ -343,25 +343,36 @@
       flex-direction: column;
       gap: 0.5rem;
     }
+    .lang-switch { display: flex; gap: 4px; border: 1px solid var(--border); border-radius: 999px; padding: 2px; background: var(--surface-2); }
+    .lang-switch button { border: 0; background: transparent; color: var(--text-muted); font: inherit; font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 999px; cursor: pointer; }
+    .lang-switch button.active { background: var(--accent); color: #fff; font-weight: 600; }
+    .hub-footer { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .hub-footer a { color: var(--accent-light); }
   </style>
+  <script src="js/er-news-lang.js"></script>
+  <script src="js/er-news-i18n-overlay.js"></script>
 </head>
 <body>
   <header class="header">
     <div class="header-inner">
       <div class="logo-block">
         <h1>APAC <span>ER News Update</span> V2.0</h1>
-        <p>亚太员工关系 · 裁员与组织优化 · 补偿金方案 · 500 强外企 & 知名企业追踪</p>
+        <p id="ui-subtitle">亚太员工关系 · 裁员与组织优化 · 补偿金方案 · 500 强外企 & 知名企业追踪</p>
       </div>
       <div class="header-meta">
+        <div class="lang-switch" role="group" id="lang-switch" aria-label="Language">
+          <button type="button" data-lang="zh" class="active">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
         <span class="badge v2">V2.0</span>
-        <span class="badge live">ER Intel</span>
+        <span class="badge live" id="ui-live">ER Intel</span>
         <span class="badge" id="lastUpdated">更新: 2026-11-23 · 含原文链接</span>
       </div>
     </div>
   </header>
 
   <main class="container">
-    <div class="intro-banner">
+    <div class="intro-banner" id="ui-intro">
       <strong>数据从哪来？</strong>看板内容<strong>不是自动爬虫</strong>，而是由 ER 场景整理的<strong>人工索引</strong>： Reuters / Bloomberg / 公司 IR 新闻稿、各国劳工部门官网、Fair Work / MOM 等公开指引。
       每条动态下方有<strong>「阅读原文」</strong>外链；若归档日期与报道日期不一致，链接指向支撑该条判断的<strong>最接近的公开报道或官方法规</strong>。
       补偿金额为<strong>报道归纳或政策框架示意</strong>，非雇主官方承诺；个案请以合同与解除协议为准。
@@ -370,12 +381,12 @@
     <section class="stats-grid" id="statsGrid"></section>
 
     <div class="legend">
-      <span><span class="tag f500">500强外企</span></span>
-      <span><span class="tag notable">其他知名</span></span>
-      <span><span class="tag layoff">Layoff</span> 裁员</span>
-      <span><span class="tag restructure">Restructure</span> 架构优化</span>
-      <span><span class="tag severance">Severance</span> 补偿方案</span>
-      <span><span class="tag freeze">Hiring Freeze</span> 招聘冻结</span>
+      <span><span class="tag f500" id="ui-legend-f500">500强外企</span></span>
+      <span><span class="tag notable" id="ui-legend-notable">其他知名</span></span>
+      <span><span class="tag layoff">Layoff</span> <span id="ui-legend-layoff">裁员</span></span>
+      <span><span class="tag restructure">Restructure</span> <span id="ui-legend-restructure">架构优化</span></span>
+      <span><span class="tag severance">Severance</span> <span id="ui-legend-severance">补偿方案</span></span>
+      <span><span class="tag freeze">Hiring Freeze</span> <span id="ui-legend-freeze">招聘冻结</span></span>
     </div>
 
     <div class="toolbar">
@@ -385,16 +396,16 @@
       </div>
       <select id="countryFilter">
         <option value="">全部市场</option>
-        <option value="SG">新加坡</option>
-        <option value="AU">澳大利亚</option>
-        <option value="JP">日本</option>
-        <option value="KR">韩国</option>
-        <option value="CN">中国大陆</option>
-        <option value="TW">台湾</option>
-        <option value="HK">香港</option>
-        <option value="IN">印度</option>
-        <option value="MY">马来西亚</option>
-        <option value="ID">印尼</option>
+        <option value="SG" data-zh-label="新加坡">新加坡</option>
+        <option value="AU" data-zh-label="澳大利亚">澳大利亚</option>
+        <option value="JP" data-zh-label="日本">日本</option>
+        <option value="KR" data-zh-label="韩国">韩国</option>
+        <option value="CN" data-zh-label="中国大陆">中国大陆</option>
+        <option value="TW" data-zh-label="台湾">台湾</option>
+        <option value="HK" data-zh-label="香港">香港</option>
+        <option value="IN" data-zh-label="印度">印度</option>
+        <option value="MY" data-zh-label="马来西亚">马来西亚</option>
+        <option value="ID" data-zh-label="印尼">印尼</option>
       </select>
       <select id="tierFilter">
         <option value="">全部企业类型</option>
@@ -412,26 +423,26 @@
     </div>
 
     <nav class="tabs" role="tablist">
-      <button class="tab-btn active" data-tab="overview">动态总览</button>
-      <button class="tab-btn" data-tab="f500">500 强外企</button>
-      <button class="tab-btn" data-tab="notable">其他知名企业</button>
-      <button class="tab-btn" data-tab="severance">补偿金对照表</button>
-      <button class="tab-btn" data-tab="legal">法定底线</button>
-      <button class="tab-btn" data-tab="index">来源索引</button>
+      <button class="tab-btn active" data-tab="overview" id="ui-tab-overview">动态总览</button>
+      <button class="tab-btn" data-tab="f500" id="ui-tab-f500">500 强外企</button>
+      <button class="tab-btn" data-tab="notable" id="ui-tab-notable">其他知名企业</button>
+      <button class="tab-btn" data-tab="severance" id="ui-tab-severance">补偿金对照表</button>
+      <button class="tab-btn" data-tab="legal" id="ui-tab-legal">法定底线</button>
+      <button class="tab-btn" data-tab="index" id="ui-tab-index">来源索引</button>
     </nav>
 
     <section class="panel active" id="panel-overview">
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <h2>最新 ER 相关动态</h2>
-            <span class="badge">裁员 · 优化 · 补偿</span>
+            <h2 id="ui-latest-news">最新 ER 相关动态</h2>
+            <span class="badge" id="ui-badge-er">裁员 · 优化 · 补偿</span>
           </div>
           <div class="card-body" id="timeline"></div>
         </div>
         <div class="card">
-          <div class="card-header"><h2>APAC 优化潮 — ER 关注要点</h2></div>
-          <div class="card-body" style="padding: 1.15rem; font-size: 0.82rem; color: var(--text-muted);">
+          <div class="card-header"><h2 id="ui-er-focus">APAC 优化潮 — ER 关注要点</h2></div>
+          <div class="card-body" style="padding: 1.15rem; font-size: 0.82rem; color: var(--text-muted);" id="ui-er-focus-body">
             <p style="margin-bottom: 0.75rem;"><strong style="color:var(--text)">500 强外企：</strong>多采用全球 RIF playbook — 通知期 + 法定谷底线 + 额外 severance package（多按年限阶梯）。SG/AU 外包与 hub 职能易波及其；IN 以 performance / stack rank 与 site consolidation 为主。</p>
             <p style="margin-bottom: 0.75rem;"><strong style="color:var(--text)">科技/电商平台：</strong>SEA 与中日韩本土巨头常见「业务线关停 + 中层 flatten」，补偿差异大，需核对<strong style="color:var(--accent-light)">股权 vest、年度奖金 pro-rata、未休年假</strong>是否纳入结算。</p>
             <p><strong style="color:var(--text)">实操清单：</strong>解除协议模板、集体咨询（AU/欧资）、社保公积金停缴时点、Work Pass 注销与 30 天离境宽限期（SG）、竞业与 confidentiality 对价是否另行约定。</p>
@@ -451,22 +462,22 @@
     <section class="panel" id="panel-severance">
       <div class="card">
         <div class="card-header">
-          <h2>补偿金 / 遣散方案对照（Senior · Manager 层级 · 示意）</h2>
-          <span class="badge">含法定 + 公司额外</span>
+          <h2 id="ui-sev-title">补偿金 / 遣散方案对照（Senior · Manager 层级 · 示意）</h2>
+          <span class="badge" id="ui-sev-badge">含法定 + 公司额外</span>
         </div>
         <div class="card-body table-wrap">
           <table>
             <thead>
               <tr>
-                <th>企业类型</th>
-                <th>公司</th>
-                <th>主要市场</th>
-                <th>优化情形</th>
-                <th>补偿框架（示意）</th>
-                <th>通知期</th>
-                <th>股权/奖金</th>
-                <th>信息可信度</th>
-                <th>参考报道 / 法规</th>
+                <th id="thSev0">企业类型</th>
+                <th id="thSev1">公司</th>
+                <th id="thSev2">主要市场</th>
+                <th id="thSev3">优化情形</th>
+                <th id="thSev4">补偿框架（示意）</th>
+                <th id="thSev5">通知期</th>
+                <th id="thSev6">股权/奖金</th>
+                <th id="thSev7">信息可信度</th>
+                <th id="thSev8">参考报道 / 法规</th>
               </tr>
             </thead>
             <tbody id="severanceBody"></tbody>
@@ -482,22 +493,27 @@
     <section class="panel" id="panel-index">
       <div class="index-card" id="indexMethod"></div>
       <div class="card">
-        <div class="card-header"><h2>全部外链一览（按栏目）</h2></div>
+        <div class="card-header"><h2 id="ui-index-title">全部外链一览（按栏目）</h2></div>
         <div class="card-body" style="padding:1.25rem;" id="indexAllRefs"></div>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <span>APAC ER News Update V2.0 · 仅供 HR / ER 内部参考 · 不构成法律意见</span>
-    <span>建议核实来源：公司 8-K / 投资者新闻稿、各国劳工部门指引、Reuters / Bloomberg、当地雇主协会、解除协议范本与 precedent cases</span>
+    <span id="ui-footer-1">APAC ER News Update V2.0 · 仅供 HR / ER 内部参考 · 不构成法律意见</span>
+    <span id="ui-footer-2">建议核实来源：公司 8-K / 投资者新闻稿、各国劳工部门指引、Reuters / Bloomberg、当地雇主协会、解除协议范本与 precedent cases</span>
+    <div class="hub-footer">
+      <a href="https://roqianebay.github.io/apac-labor-hr-practice/" id="ui-hub-labor">劳动法办案指南</a>
+      <a href="https://roqianebay.github.io/apac-ta-employer-policy-monitor/" id="ui-hub-talent">Talent Employer Monitor</a>
+      <a href="https://roqianebay.github.io/apac-policy-monitor/" id="ui-hub-gov">政府政策 Monitor</a>
+    </div>
   </footer>
 
   <script>
     /** @type {{title:string,publisher?:string,url:string,type?:string}[]} */
     const INDEX_PUBLISHERS = ["Reuters", "Bloomberg", "官方", "法规"];
 
-    const NEWS = [
+    window.NEWS = [
       { date: "2026-10", tier: "f500", company: "Microsoft", countries: ["SG", "AU", "IN"], tags: ["layoff", "restructure", "severance"], scale: "数百（APAC 占全球 RIF 一部分）", title: "FY26 第二波职能精简", desc: "Sales、Support 与部分 Consulting 岗位优化；Azure / Security Engineering 仍扩招。APAC 采用全球 severance band：通知期 + 按服务年限周数。", severanceHint: "美资全球标准：通常 2–6 个月基数 + 按年限 2–3 周/年（因国别调整）",
         refs: [
           { publisher: "Reuters", title: "Microsoft cuts jobs across gaming and cloud maps divisions", url: "https://www.reuters.com/technology/microsoft-cuts-jobs-across-gaming-maps-divisions-2024-09-30/" },
@@ -518,6 +534,7 @@
       { date: "2026-02", tier: "notable", company: "Grab", countries: ["SG", "MY"], tags: ["restructure"], scale: "局部", title: "Financial services 实验项目关停", desc: "裁员规模小于 Shopee 同轮；强调 retained employees 福利不变。", severanceHint: "SEA 独角兽：1–2 月 base 起点 + 年假（协商）" },
       { date: "2026-01", tier: "notable", company: "Coupang", countries: ["KR", "TW"], tags: ["restructure", "layoff"], scale: "Ops 优化", title: "物流自动化后站点人效调整", desc: "韩国 statutory 退职金（ 정산）与 RIF package 分项列示。", severanceHint: "KR：≥1 年 30 日平均工资/年 法定 + 公司自愿金" }
     ];
+    if (window.__applyErNewsEn) window.__applyErNewsEn();
 
     const NEWS_REF_INDEX = {
   "Amazon": [
@@ -893,7 +910,10 @@
       "Coupang|KR": [{ publisher: "Reuters", title: "Coupang workforce reduction", url: "https://www.reuters.com/technology/south-koreas-coupang-cuts-5-percent-workforce-2023-02-21/" }]
     };
 
-    function tierLabel(t) { return t === "f500" ? "500强外企" : "其他知名"; }
+    function tierLabel(t) {
+      const EL = window.ErNewsLang;
+      return EL ? EL.tierLabel(t) : (t === "f500" ? "500强外企" : "其他知名");
+    }
     function tierTag(t) { return `<span class="tag ${t === "f500" ? "f500" : "notable"}">${tierLabel(t)}</span>`; }
 
     function escapeAttr(s) {
@@ -1011,36 +1031,45 @@
     }
 
     function renderStats() {
-      const f500 = NEWS.filter(n => n.tier === "f500").length;
-      const notable = NEWS.filter(n => n.tier === "notable").length;
+      const EL = window.ErNewsLang;
+      const f500 = window.NEWS.filter(n => n.tier === "f500").length;
+      const notable = window.NEWS.filter(n => n.tier === "notable").length;
       const withSev = SEVERANCE_TABLE.length;
-      const layoffs = NEWS.filter(n => n.tags.includes("layoff") || n.tags.includes("restructure")).length;
+      const layoffs = window.NEWS.filter(n => n.tags.includes("layoff") || n.tags.includes("restructure")).length;
       document.getElementById("statsGrid").innerHTML = `
-        <div class="stat-card danger"><div class="label">裁员/优化事件</div><div class="value">${layoffs}</div><div class="sub">样本库 ${NEWS.length} 条</div></div>
-        <div class="stat-card accent"><div class="label">500 强外企</div><div class="value">${f500}</div><div class="sub">档案 ${F500_PROFILES.length} 家</div></div>
-        <div class="stat-card info"><div class="label">其他知名企业</div><div class="value">${notable}</div><div class="sub">档案 ${NOTABLE_PROFILES.length} 家</div></div>
-        <div class="stat-card warn"><div class="label">补偿方案条目</div><div class="value">${withSev}</div><div class="sub">跨市场对照 · 含链接</div></div>
-        <div class="stat-card"><div class="value">7</div><div class="label">法定市场摘要</div><div class="sub">APAC ER 底线</div></div>`;
+        <div class="stat-card danger"><div class="label">${EL ? EL.t(EL.UI.statLayoffs) : "裁员/优化事件"}</div><div class="value">${layoffs}</div><div class="sub">${EL ? EL.t(EL.UI.statSample) : "样本库"} ${window.NEWS.length}</div></div>
+        <div class="stat-card accent"><div class="label">${EL ? EL.t(EL.UI.statF500) : "500 强外企"}</div><div class="value">${f500}</div><div class="sub">${EL ? EL.t(EL.UI.statProfiles) : "档案"} ${F500_PROFILES.length}</div></div>
+        <div class="stat-card info"><div class="label">${EL ? EL.t(EL.UI.statNotable) : "其他知名企业"}</div><div class="value">${notable}</div><div class="sub">${EL ? EL.t(EL.UI.statProfiles) : "档案"} ${NOTABLE_PROFILES.length}</div></div>
+        <div class="stat-card warn"><div class="label">${EL ? EL.t(EL.UI.statSev) : "补偿方案条目"}</div><div class="value">${withSev}</div><div class="sub">${EL ? EL.t(EL.UI.statSevSub) : ""}</div></div>
+        <div class="stat-card"><div class="value">7</div><div class="label">${EL ? EL.t(EL.UI.statLegal) : "法定市场摘要"}</div><div class="sub">${EL ? EL.t(EL.UI.statLegalSub) : ""}</div></div>`;
     }
 
     function renderTimeline(f) {
-      document.getElementById("timeline").innerHTML = NEWS.map(n => {
+      const EL = window.ErNewsLang;
+      document.getElementById("timeline").innerHTML = window.NEWS.map(n => {
         const hidden = matchNews(n, f) ? "" : "hidden";
-        const tags = n.tags.map(t => `<span class="tag ${t}">${t}</span>`).join("");
+        const tags = n.tags.map(t => `<span class="tag ${t}">${EL ? EL.tagLabel(t) : t}</span>`).join("");
+        const title = EL ? EL.itemField(n, "title") : n.title;
+        const desc = EL ? EL.itemField(n, "desc") : n.desc;
+        const scale = EL ? EL.itemField(n, "scale") : n.scale;
+        const hint = EL ? EL.itemField(n, "severanceHint") : n.severanceHint;
+        const scaleL = EL ? EL.t(EL.UI.scale) : "规模";
+        const hintL = EL ? EL.t(EL.UI.sevHint) : "补偿线索";
         return `<article class="timeline-item ${hidden}">
           <time class="timeline-date">${n.date}</time>
           <div class="timeline-content">
-            <h3>${tierTag(n.tier)} ${n.company} · ${n.title}</h3>
-            <p>${n.desc}</p>
-            <p style="margin-top:0.35rem;color:var(--accent-light);font-size:0.78rem"><strong>规模：</strong>${n.scale} · <strong>补偿线索：</strong>${n.severanceHint}</p>
-            ${renderRefLinks(newsRefs(n))}
-            <div class="timeline-tags">${tags}<span class="tag scale">${n.countries.map(c => MARKET_NAMES[c] || c).join(" · ")}</span></div>
+            <h3>${tierTag(n.tier)} ${n.company} · ${title}</h3>
+            <p>${desc}</p>
+            <p style="margin-top:0.35rem;color:var(--accent-light);font-size:0.78rem"><strong>${scaleL}：</strong>${scale} · <strong>${hintL}：</strong>${hint}</p>
+            ${renderRefLinks(newsRefs(n), EL ? EL.t(EL.UI.readMore) : undefined)}
+            <div class="timeline-tags">${tags}<span class="tag scale">${n.countries.map(c => (EL ? EL.marketName(c) : MARKET_NAMES[c]) || c).join(" · ")}</span></div>
           </div>
         </article>`;
       }).join("");
     }
 
     function renderProfileCards(list, elId, f, tier) {
+      const EL = window.ErNewsLang;
       const el = document.getElementById(elId);
       el.innerHTML = list.map(p => {
         const blob = JSON.stringify(p).toLowerCase();
@@ -1053,22 +1082,23 @@
           <div class="company-card-top">
             <div class="company-cell">
               <div class="company-avatar" style="background:${color}22;color:${color}">${getInitials(p.company)}</div>
-              <div><h3>${p.company}</h3><div class="sector">${p.sector} · ${p.markets.map(m => MARKET_NAMES[m] || m).join(" · ")}</div></div>
+              <div><h3>${p.company}</h3><div class="sector">${p.sector} · ${p.markets.map(m => (EL ? EL.marketName(m) : MARKET_NAMES[m]) || m).join(" · ")}</div></div>
             </div>
           </div>
-          <div class="row-2"><div><span class="k">最近事件</span><div>${p.lastEvent}</div></div>
-          <div><span class="k">涉及团队</span><div>${p.teams || "—"}</div></div></div>
-          <div class="row-2"><div><span class="k">APAC 要点</span><div>${p.apacNote || "—"}</div></div></div>
-          <div class="severance-block"><strong>补偿 / 遣散框架</strong>${p.severance}</div>
-          <div class="row-2"><div><span class="k">附加支持</span><div>${p.extras || "—"}</div></div>
-          <div><span class="k">ER 风险</span><div>${p.risk || "—"}</div></div></div>
-          <div class="notes"><strong>摘要来源：</strong>${p.source}</div>
-          ${renderRefLinks(profileRefs(p.company), "延伸报道 / 官方")}
+          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kLastEvent) : "最近事件"}</span><div>${p.lastEvent}</div></div>
+          <div><span class="k">${EL ? EL.t(EL.UI.kTeams) : "涉及团队"}</span><div>${p.teams || "—"}</div></div></div>
+          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kApac) : "APAC 要点"}</span><div>${p.apacNote || "—"}</div></div></div>
+          <div class="severance-block"><strong>${EL ? EL.t(EL.UI.sevBlock) : "补偿 / 遣散框架"}</strong>${p.severance}</div>
+          <div class="row-2"><div><span class="k">${EL ? EL.t(EL.UI.kExtras) : "附加支持"}</span><div>${p.extras || "—"}</div></div>
+          <div><span class="k">${EL ? EL.t(EL.UI.kRisk) : "ER 风险"}</span><div>${p.risk || "—"}</div></div></div>
+          <div class="notes"><strong>${EL ? EL.t(EL.UI.kSource) : "摘要来源"}：</strong>${p.source}</div>
+          ${renderRefLinks(profileRefs(p.company), EL ? EL.t(EL.UI.readExt) : "延伸报道 / 官方")}
         </div>`;
       }).join("");
     }
 
     function renderSeverance(f) {
+      const EL = window.ErNewsLang;
       document.getElementById("severanceBody").innerHTML = SEVERANCE_TABLE.map(r => {
         const blob = JSON.stringify(r).toLowerCase();
         const matchQ = !f.q || blob.includes(f.q);
@@ -1079,50 +1109,49 @@
         return `<tr class="${hidden}">
           <td>${tierTag(r.tier)}</td>
           <td><div class="company-cell"><div class="company-avatar" style="background:${color}22;color:${color}">${getInitials(r.company)}</div>${r.company}</div></td>
-          <td>${MARKET_NAMES[r.market] || r.market}</td>
+          <td>${EL ? EL.marketName(r.market) : MARKET_NAMES[r.market] || r.market}</td>
           <td>${r.scenario}</td>
           <td>${r.formula}</td>
           <td>${r.notice}</td>
           <td>${r.equity}</td>
           <td><span class="tag severance">${r.confidence}</span></td>
-          <td>${renderRefLinks(severanceRefs(r), "链接")}</td>
+          <td>${renderRefLinks(severanceRefs(r), EL ? EL.t(EL.UI.readLinks) : "链接")}</td>
         </tr>`;
       }).join("");
     }
 
     function renderLegal() {
+      const EL = window.ErNewsLang;
       document.getElementById("legalGrid").innerHTML = LEGAL_BASELINE.map(l => `
         <div class="legal-card">
           <h3><span>${l.flag}</span> ${l.country}</h3>
           <ul>${l.points.map(p => `<li><strong>${p.k}：</strong>${p.v}</li>`).join("")}</ul>
-          ${renderRefLinks(LEGAL_REF_INDEX[l.code] || [], "官方法规 / 指引")}
+          ${renderRefLinks(LEGAL_REF_INDEX[l.code] || [], EL ? EL.t(EL.UI.readOfficial) : "官方法规 / 指引")}
         </div>`).join("");
     }
 
     function renderIndexPanel() {
-      document.getElementById("indexMethod").innerHTML = `
-        <h2>内容如何索引？</h2>
-        <ul>
-          <li><strong>动态总览</strong>：根据 Reuters / Bloomberg / 公司新闻稿整理的 ER 摘要；列表日期为<strong>栏目归档月</strong>，外链为支撑该条的原始报道（报道日期可能更早）。</li>
-          <li><strong>公司档案 & 补偿表</strong>：公开裁员报道 + 法定底线归纳；补偿数字为<strong>报道/惯例示意</strong>。</li>
-          <li><strong>法定底线</strong>：政府机关公开网页，可点击核实。</li>
-          <li><strong>非自动爬虫</strong>：当前为人工维护；需要时可接入 RSS / GitHub Actions 自动更新链接与摘要。</li>
-        </ul>`;
+      const EL = window.ErNewsLang;
+      const methodHtml = EL ? EL.t(EL.UI.indexMethodHtml) : "<h2>内容如何索引？</h2><ul><li><strong>动态总览</strong>：人工整理的 ER 摘要与外链。</li><li><strong>公司档案 & 补偿表</strong>：示意数据。</li><li><strong>法定底线</strong>：官方网页。</li></ul>";
+      document.getElementById("indexMethod").innerHTML = methodHtml;
       const seen = new Set();
       const uniqueByUrl = refs => refs.filter(r => {
         if (!r.url || seen.has(r.url)) return false;
         seen.add(r.url);
         return true;
       });
-      const newsBlocks = NEWS.map(n => {
+      const newsBlocks = window.NEWS.map(n => {
+        const title = EL ? EL.itemField(n, "title") : n.title;
         const refs = newsRefs(n);
         if (!refs.length) return "";
-        return `<div style="margin-bottom:1rem;"><div style="font-size:0.85rem;color:var(--text);font-weight:600;margin-bottom:0.35rem;">${escapeAttr(n.company)} — ${escapeAttr(n.title)}</div>${renderRefLinks(refs, "")}</div>`;
+        return `<div style="margin-bottom:1rem;"><div style="font-size:0.85rem;color:var(--text);font-weight:600;margin-bottom:0.35rem;">${escapeAttr(n.company)} — ${escapeAttr(title)}</div>${renderRefLinks(refs, "")}</div>`;
       }).join("");
       const legalRefs = uniqueByUrl(Object.values(LEGAL_REF_INDEX).flat());
+      const newsHead = EL ? EL.t(EL.UI.indexNewsHead) : "按动态归类的外链";
+      const legalHead = EL ? EL.t(EL.UI.indexLegalHead) : "官方法规汇总";
       document.getElementById("indexAllRefs").innerHTML =
-        `<h3 style="font-size:0.9rem;color:var(--text);margin:0 0 0.5rem;">按动态归类的外链</h3>${newsBlocks}` +
-        `<h3 style="font-size:0.9rem;color:var(--text);margin:1.25rem 0 0.5rem;">官方法规汇总（${legalRefs.length}）</h3>${renderRefLinks(legalRefs, "")}`;
+        `<h3 style="font-size:0.9rem;color:var(--text);margin:0 0 0.5rem;">${newsHead}</h3>${newsBlocks}` +
+        `<h3 style="font-size:0.9rem;color:var(--text);margin:1.25rem 0 0.5rem;">${legalHead}（${legalRefs.length}）</h3>${renderRefLinks(legalRefs, "")}`;
     }
 
     function applyFilters() {
@@ -1132,6 +1161,10 @@
       renderProfileCards(NOTABLE_PROFILES, "notableCards", f, "notable");
       renderSeverance(f);
     }
+    window.applyFilters = applyFilters;
+    window.renderStats = renderStats;
+    window.renderLegal = renderLegal;
+    window.renderIndexPanel = renderIndexPanel;
 
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -1148,10 +1181,7 @@
       el.addEventListener("change", applyFilters);
     });
 
-    renderStats();
-    renderLegal();
-    renderIndexPanel();
-    applyFilters();
+    if (window.ErNewsLang) ErNewsLang.init();
   </script>
 </body>
 </html>

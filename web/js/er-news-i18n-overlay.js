@@ -1,0 +1,21 @@
+window.__applyErNewsEn = function () {
+  if (!window.NEWS) return;
+  const EN = [
+    { titleEn: "FY26 second wave of role reductions", descEn: "Optimising sales, support and some consulting; Azure/security still hiring. APAC uses global severance bands: notice + weeks per year of service.", scaleEn: "Hundreds (APAC share of global RIF)", severanceHintEn: "US MNC norm: ~2–6 months base + 2–3 weeks/year (localized)" },
+    { titleEn: "AWS and retail restructuring", descEn: "Legacy teams reduced in Bangalore/Hyderabad; Sydney FC ops consolidated. IN: limited room to negotiate beyond statutory + ex-gratia.", scaleEn: "1k+ IN; double-digit AU retail/ops", severanceHintEn: "IN: service-linked comp + notice buyout; AU: N+1 market practice" },
+    { titleEn: "Reality Labs APAC contraction", descEn: "SG keeps infra and monetization; RL roles redeploy or exit package. EP exits need MOM timeline and tax clearance.", scaleEn: "Double-digit SG; partial IN", severanceHintEn: "US tech: 4–8 weeks/year + RSU acceleration case-by-case" },
+    { titleEn: "Non-commerce lines still optimizing", descEn: "Platform eng merge; games and some B2B pilots closed. SG EP packages often include repatriation advice.", scaleEn: "Thousands regionally (multi-round)", severanceHintEn: "Sea: reported ~1–2 months base + leave payout (varies)" },
+    { titleEn: "Partial PA hiring freeze", descEn: "Post-2024–25 RIF headcount cap; L6+ packages still follow global severance grid.", scaleEn: "Moderate", severanceHintEn: "Reported: 16 weeks minimum + 2 weeks/year + medical (US template, APAC localised)" },
+    { titleEn: "Restructuring program 2026", descEn: "Consulting and legacy on-prem support reduced; German parent emphasises consultation in AU.", scaleEn: "APAC share of global 8k plan", severanceHintEn: "German cos: statutory + ~0.5–1.5 months/year negotiation" },
+    { titleEn: "Duplicate roles consolidated", descEn: "Post-Alibaba integration trims SG hub middle layer; logistics and cross-border tools eng retained.", scaleEn: "Flatter management", severanceHintEn: "Chinese MNC overseas: local statutory + 1–3 months deal" },
+    { titleEn: "Penang/Kulim capacity ripple", descEn: "Vendor ecosystem roles volatile; direct Intel staff on global severance policy.", scaleEn: "Manufacturing-related contraction", severanceHintEn: "US manufacturing: week-based package + outplacement" },
+    { titleEn: "Regional ops reorganize", descEn: "Commerce hiring up while back-office slimmed; agreements often spell out IP/data duties.", scaleEn: "Trust & safety / non-commercial", severanceHintEn: "Rumoured 1–3 months base + bonus pro-rata" },
+    { titleEn: "Mobile layoffs and fintech funding", descEn: "Strict lawful dismissal in JP; voluntary retirement with incentives common.", scaleEn: "Hundreds in mobile", severanceHintEn: "Voluntary exit: extra 3–12 months (reported range)" },
+    { titleEn: "APAC delivery centre migration", descEn: "Roles moved to lower-cost sites or partners; AU unfair-dismissal risk assessment.", scaleEn: "Consulting/GTS", severanceHintEn: "US: 2 weeks/year common opening offer" },
+    { titleEn: "APAC support tier trim", descEn: "AI self-service replaces tier-2; package narrative stays competitive.", scaleEn: "Small/medium", severanceHintEn: "US: 2 weeks/year + benefits; APAC local floor" },
+    { titleEn: "GTM optimisation in PC downturn", descEn: "Regional marketing hub consolidated to SG.", scaleEn: "Sales/marketing", severanceHintEn: "US lump sum + medical to month-end; SG no COBRA equivalent" },
+    { titleEn: "Financial services experiment closed", descEn: "Smaller than Shopee round; message that retained staff benefits unchanged.", scaleEn: "Partial", severanceHintEn: "SEA unicorn: ~1–2 months base + leave (negotiated)" },
+    { titleEn: "Logistics automation site efficiency", descEn: "KR statutory severance and RIF package shown separately.", scaleEn: "Ops optimisation", severanceHintEn: "KR: 30 days/year statutory + voluntary top-up" }
+  ];
+  window.NEWS.forEach((n, i) => Object.assign(n, EN[i] || {}));
+};
