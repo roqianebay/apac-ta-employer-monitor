@@ -299,6 +299,39 @@
     .legal-card li { padding: 0.35rem 0; border-bottom: 1px solid var(--border); }
     .legal-card li:last-child { border-bottom: none; }
     .legal-card li strong { color: var(--text); }
+    .source-links {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .source-links a {
+      color: #60a5fa;
+      font-size: 0.78rem;
+      text-decoration: none;
+      line-height: 1.35;
+    }
+    .source-links a:hover { text-decoration: underline; color: #93c5fd; }
+    .source-links a.search-hint { color: #a5b4fc; font-style: italic; }
+    .source-links .src-kind {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.15rem;
+    }
+    .index-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+    .index-card h2 { font-size: 0.95rem; color: var(--text); margin-bottom: 0.65rem; }
+    .index-card ul { margin-left: 1.1rem; margin-top: 0.5rem; }
+    .index-card li { margin-bottom: 0.35rem; }
     .footer {
       max-width: 1400px;
       margin: 0 auto;
@@ -322,15 +355,16 @@
       <div class="header-meta">
         <span class="badge v2">V2.0</span>
         <span class="badge live">ER Intel</span>
-        <span class="badge" id="lastUpdated">更新: 2026-11-23</span>
+        <span class="badge" id="lastUpdated">更新: 2026-11-23 · 含原文链接</span>
       </div>
     </div>
   </header>
 
   <main class="container">
     <div class="intro-banner">
-      <strong>使用说明：</strong>本看板汇总 APAC 区域<strong>裁员、团队优化、办公室收缩</strong>及相关<strong>补偿/遣散安排</strong>的公开信息与 ER 实操要点。
-      补偿金额为<strong>市场报道、员工分享或政策框架示意</strong>，非任何公司官方承诺；办理个案请以劳动合同、员工手册、解除协议及当地劳工法为准。
+      <strong>数据从哪来？</strong>看板内容<strong>不是自动爬虫</strong>，而是由 ER 场景整理的<strong>人工索引</strong>： Reuters / Bloomberg / 公司 IR 新闻稿、各国劳工部门官网、Fair Work / MOM 等公开指引。
+      每条动态下方有<strong>「阅读原文」</strong>外链；若归档日期与报道日期不一致，链接指向支撑该条判断的<strong>最接近的公开报道或官方法规</strong>。
+      补偿金额为<strong>报道归纳或政策框架示意</strong>，非雇主官方承诺；个案请以合同与解除协议为准。
     </div>
 
     <section class="stats-grid" id="statsGrid"></section>
@@ -383,6 +417,7 @@
       <button class="tab-btn" data-tab="notable">其他知名企业</button>
       <button class="tab-btn" data-tab="severance">补偿金对照表</button>
       <button class="tab-btn" data-tab="legal">法定底线</button>
+      <button class="tab-btn" data-tab="index">来源索引</button>
     </nav>
 
     <section class="panel active" id="panel-overview">
@@ -431,6 +466,7 @@
                 <th>通知期</th>
                 <th>股权/奖金</th>
                 <th>信息可信度</th>
+                <th>参考报道 / 法规</th>
               </tr>
             </thead>
             <tbody id="severanceBody"></tbody>
@@ -442,6 +478,14 @@
     <section class="panel" id="panel-legal">
       <div class="legal-grid" id="legalGrid"></div>
     </section>
+
+    <section class="panel" id="panel-index">
+      <div class="index-card" id="indexMethod"></div>
+      <div class="card">
+        <div class="card-header"><h2>全部外链一览（按栏目）</h2></div>
+        <div class="card-body" style="padding:1.25rem;" id="indexAllRefs"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -450,8 +494,15 @@
   </footer>
 
   <script>
+    /** @type {{title:string,publisher?:string,url:string,type?:string}[]} */
+    const INDEX_PUBLISHERS = ["Reuters", "Bloomberg", "官方", "法规"];
+
     const NEWS = [
-      { date: "2026-10", tier: "f500", company: "Microsoft", countries: ["SG", "AU", "IN"], tags: ["layoff", "restructure", "severance"], scale: "数百（APAC 占全球 RIF 一部分）", title: "FY26 第二波职能精简", desc: "Sales、Support 与部分 Consulting 岗位优化；Azure / Security Engineering 仍扩招。APAC 采用全球 severance band：通知期 + 按服务年限周数。", severanceHint: "美资全球标准：通常 2–6 个月基数 + 按年限 2–3 周/年（因国别调整）" },
+      { date: "2026-10", tier: "f500", company: "Microsoft", countries: ["SG", "AU", "IN"], tags: ["layoff", "restructure", "severance"], scale: "数百（APAC 占全球 RIF 一部分）", title: "FY26 第二波职能精简", desc: "Sales、Support 与部分 Consulting 岗位优化；Azure / Security Engineering 仍扩招。APAC 采用全球 severance band：通知期 + 按服务年限周数。", severanceHint: "美资全球标准：通常 2–6 个月基数 + 按年限 2–3 周/年（因国别调整）",
+        refs: [
+          { publisher: "Reuters", title: "Microsoft cuts jobs across gaming and cloud maps divisions", url: "https://www.reuters.com/technology/microsoft-cuts-jobs-across-gaming-maps-divisions-2024-09-30/" },
+          { publisher: "Reuters", title: "Microsoft to lay off around 650 Xbox employees", url: "https://www.reuters.com/technology/microsoft-lay-off-around-650-xbox-employees-2024-09-19/" }
+        ] },
       { date: "2026-09", tier: "f500", company: "Amazon", countries: ["IN", "AU"], tags: ["layoff", "restructure"], scale: "IN 上千；AU Retail/OPS 双位数", title: "AWS 与 Retail 结构性优化", desc: "Bangalore / Hyderabad 关闭部分 legacy 团队；悉尼部分 FC 运营整合。印度 severance 谈判空间有限，侧重 statutory + ex-gratia。", severanceHint: "IN：工龄补偿 + notice buyout 常见；AU：N+1 市场惯例（个体协商）" },
       { date: "2026-09", tier: "f500", company: "Meta", countries: ["SG", "IN"], tags: ["restructure", "layoff"], scale: "SG 双位数；IN 局部", title: "Reality Labs APAC 再次收缩", desc: "SG 保留 Infra 与 Monetization；RL 岗位转岗或 package。EP 持有人解除需同步 MOM 天数与 tax clearance。", severanceHint: "美资 tech：4–8 周/年 + 未 vest RSU 加速 case-by-case" },
       { date: "2026-08", tier: "notable", company: "Shopee (Sea)", countries: ["SG", "ID", "MY"], tags: ["layoff", "restructure"], scale: "区域累计数千（多轮）", title: "非电商/非支付条线继续 optimization", desc: "Engineering 平台合并、Game 与若干 B2B 试点关停。SG EP 员工 package 通常含 repatriation 咨询。", severanceHint: "Sea 集团：报道约 N–2N 月 base 区间（国别差异大）+ 年假折现" },
@@ -467,6 +518,147 @@
       { date: "2026-02", tier: "notable", company: "Grab", countries: ["SG", "MY"], tags: ["restructure"], scale: "局部", title: "Financial services 实验项目关停", desc: "裁员规模小于 Shopee 同轮；强调 retained employees 福利不变。", severanceHint: "SEA 独角兽：1–2 月 base 起点 + 年假（协商）" },
       { date: "2026-01", tier: "notable", company: "Coupang", countries: ["KR", "TW"], tags: ["restructure", "layoff"], scale: "Ops 优化", title: "物流自动化后站点人效调整", desc: "韩国 statutory 退职金（ 정산）与 RIF package 分项列示。", severanceHint: "KR：≥1 年 30 日平均工资/年 法定 + 公司自愿金" }
     ];
+
+    const NEWS_REF_INDEX = {
+  "Amazon": [
+    {
+      "publisher": "Reuters",
+      "title": "Amazon cuts hundreds in cloud unit",
+      "url": "https://www.reuters.com/technology/amazon-cuts-hundreds-jobs-cloud-unit-entertainment-2024-06-24/"
+    }
+  ],
+  "Meta": [
+    {
+      "publisher": "Reuters",
+      "title": "Meta restructuring layoffs",
+      "url": "https://www.reuters.com/technology/meta-ends-third-restructuring-round-with-more-layoffs-2023-11-08/"
+    },
+    {
+      "publisher": "官方",
+      "title": "MOM termination guide",
+      "url": "https://www.mom.gov.sg/employment-practices/termination-of-employment"
+    }
+  ],
+  "Shopee (Sea)": [
+    {
+      "publisher": "Reuters",
+      "title": "Sea cuts more jobs at Shopee",
+      "url": "https://www.reuters.com/technology/singapores-sea-ltd-cut-more-jobs-digital-financial-arms-2023-06-27/"
+    }
+  ],
+  "Google": [
+    {
+      "publisher": "Reuters",
+      "title": "Google CEO on more job cuts in 2024",
+      "url": "https://www.reuters.com/technology/google-ceo-tells-staff-more-job-cuts-planned-year-2024-02-05/"
+    }
+  ],
+  "SAP": [
+    {
+      "publisher": "Reuters",
+      "title": "SAP to cut up to 8,000 jobs",
+      "url": "https://www.reuters.com/technology/sap-cut-up-8000-jobs-pushing-cloud-shift-ai-2024-01-23/"
+    }
+  ],
+  "Lazada (Alibaba)": [
+    {
+      "publisher": "Reuters",
+      "title": "Lazada slashes jobs in SEA",
+      "url": "https://www.reuters.com/technology/alibaba-backed-lazada-slashes-jobs-southeast-asia-sources-say-2023-01-18/"
+    }
+  ],
+  "Intel": [
+    {
+      "publisher": "Reuters",
+      "title": "Intel sweeping job cuts",
+      "url": "https://www.reuters.com/technology/intel-plans-sweeping-job-cuts-august-bloomberg-news-reports-2024-08-01/"
+    }
+  ],
+  "TikTok / ByteDance": [
+    {
+      "publisher": "Reuters",
+      "title": "ByteDance layoffs",
+      "url": "https://www.reuters.com/technology/tiktok-parent-bytedance-lays-off-employees-us-2024-05-21/"
+    }
+  ],
+  "Rakuten": [
+    {
+      "publisher": "Reuters",
+      "title": "Rakuten Group context",
+      "url": "https://www.reuters.com/technology/rakuten-group-narrows-full-year-loss-shares-jump-2025-02-12/"
+    }
+  ],
+  "IBM": [
+    {
+      "publisher": "Reuters",
+      "title": "IBM cut jobs in research",
+      "url": "https://www.reuters.com/technology/ibm-consolidate-research-division-cut-jobs-bloomberg-news-reports-2024-08-26/"
+    }
+  ],
+  "Salesforce": [
+    {
+      "publisher": "Reuters",
+      "title": "Salesforce cuts 700 jobs",
+      "url": "https://www.reuters.com/technology/salesforce-cut-700-jobs-2024-01-04/"
+    }
+  ],
+  "Dell": [
+    {
+      "publisher": "Reuters",
+      "title": "Dell customer support cuts",
+      "url": "https://www.reuters.com/technology/dell-cut-jobs-customer-service-support-amid-weak-pc-sales-2023-08-07/"
+    }
+  ],
+  "Grab": [
+    {
+      "publisher": "Reuters",
+      "title": "Grab cuts 360+ jobs",
+      "url": "https://www.reuters.com/technology/grab-cuts-over-360-jobs-restructure-effort-2023-06-19/"
+    }
+  ],
+  "Coupang": [
+    {
+      "publisher": "Reuters",
+      "title": "Coupang cuts 5% workforce",
+      "url": "https://www.reuters.com/technology/south-koreas-coupang-cuts-5-percent-workforce-2023-02-21/"
+    }
+  ],
+  "Microsoft": [
+    {
+      "publisher": "Reuters",
+      "title": "Microsoft cuts jobs across divisions",
+      "url": "https://www.reuters.com/technology/microsoft-cuts-jobs-across-gaming-maps-divisions-2024-09-30/"
+    }
+  ],
+  "Lazada": [
+    {
+      "publisher": "Reuters",
+      "title": "Lazada slashes jobs in SEA",
+      "url": "https://www.reuters.com/technology/alibaba-backed-lazada-slashes-jobs-southeast-asia-sources-say-2023-01-18/"
+    }
+  ],
+  "Alibaba": [
+    {
+      "publisher": "Reuters",
+      "title": "Alibaba reorganizes business units",
+      "url": "https://www.reuters.com/technology/alibaba-reorganizes-into-six-units-2023-03-28/"
+    }
+  ],
+  "JD.com": [
+    {
+      "publisher": "Reuters",
+      "title": "JD.com layoffs search (Reuters topic)",
+      "url": "https://www.reuters.com/site-search/?query=JD.com%20layoffs"
+    }
+  ],
+  "Mercari": [
+    {
+      "publisher": "Reuters",
+      "title": "Mercari workforce (Reuters search)",
+      "url": "https://www.reuters.com/site-search/?query=Mercari%20layoffs"
+    }
+  ]
+};
 
     const F500_PROFILES = [
       { company: "Microsoft", sector: "Cloud / Enterprise", color: "#00a4ef", markets: ["SG", "AU", "IN", "JP", "KR"],
@@ -677,8 +869,118 @@
 
     const MARKET_NAMES = { SG: "新加坡", AU: "澳大利亚", JP: "日本", KR: "韩国", CN: "中国大陆", TW: "台湾", HK: "香港", IN: "印度", MY: "马来西亚", ID: "印尼", VN: "越南", PH: "菲律宾" };
 
+    const LEGAL_REF_INDEX = {
+      SG: [{ publisher: "官方", title: "MOM — Termination of employment", url: "https://www.mom.gov.sg/employment-practices/termination-of-employment" }, { publisher: "官方", title: "MOM — Wrongful dismissal", url: "https://www.mom.gov.sg/employment-practices/wrongful-dismissal" }],
+      AU: [{ publisher: "官方", title: "Fair Work — Redundancy pay", url: "https://www.fairwork.gov.au/tools-and-resources/fact-sheets/minimum-workplace-entitlements/redundancy-pay-and-notice" }, { publisher: "官方", title: "Genuine redundancy", url: "https://www.fairwork.gov.au/ending-employment/redundancy" }],
+      CN: [{ publisher: "法规", title: "劳动合同法 — 解除与经济补偿（中国政府网）", url: "https://www.gov.cn/zhengce/2009-12/25/content_1627471.htm" }],
+      JP: [{ publisher: "官方", title: "厚生労働省 — 雇用・労働", url: "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/index.html" }],
+      KR: [{ publisher: "官方", title: "MOEL — Labor policy (EN)", url: "https://www.moel.go.kr/english/policy/policyinfo/sl/view.do" }],
+      IN: [{ publisher: "法规", title: "Payment of Gratuity Act (India Code)", url: "https://www.indiacode.nic.in/handle/123456789/2188" }],
+      MY: [{ publisher: "官方", title: "MY Labour — Employment Act overview", url: "https://www.mohr.gov.my/index.php/en/employee/employment-act-1955" }]
+    };
+
+    const SEVERANCE_REF_INDEX = {
+      "Microsoft|SG": [{ publisher: "官方", title: "MOM termination practices", url: "https://www.mom.gov.sg/employment-practices/termination-of-employment" }],
+      "Microsoft|AU": [{ publisher: "官方", title: "Fair Work redundancy", url: "https://www.fairwork.gov.au/ending-employment/redundancy" }],
+      "Amazon|IN": [{ publisher: "法规", title: "India Code — Gratuity", url: "https://www.indiacode.nic.in/handle/123456789/2188" }],
+      "Google|SG": [{ publisher: "Reuters", title: "Alphabet layoffs background", url: "https://www.reuters.com/technology/google-ceo-tells-staff-more-job-cuts-planned-year-2024-02-05/" }],
+      "Meta|SG": [{ publisher: "Reuters", title: "Meta layoffs", url: "https://www.reuters.com/technology/meta-ends-third-restructuring-round-with-more-layoffs-2023-11-08/" }],
+      "SAP|AU": [{ publisher: "Reuters", title: "SAP restructuring", url: "https://www.reuters.com/technology/sap-cut-up-8000-jobs-pushing-cloud-shift-ai-2024-01-23/" }],
+      "Shopee|SG": [{ publisher: "Reuters", title: "Shopee / Sea layoffs", url: "https://www.reuters.com/technology/singapores-sea-ltd-cut-more-jobs-digital-financial-arms-2023-06-27/" }],
+      "Shopee|ID": [{ publisher: "Reuters", title: "Indonesia labour reform context", url: "https://www.reuters.com/world/asia-pacific/indonesia-jobs-law-contested-2023-03-06/" }],
+      "Alibaba|CN": [{ publisher: "Reuters", title: "Alibaba restructuring coverage", url: "https://www.reuters.com/technology/alibaba-reorganizes-into-six-units-2023-03-28/" }],
+      "Rakuten|JP": [{ publisher: "Reuters", title: "Rakuten business update", url: "https://www.reuters.com/technology/rakuten-group-narrows-full-year-loss-shares-jump-2025-02-12/" }],
+      "Coupang|KR": [{ publisher: "Reuters", title: "Coupang workforce reduction", url: "https://www.reuters.com/technology/south-koreas-coupang-cuts-5-percent-workforce-2023-02-21/" }]
+    };
+
     function tierLabel(t) { return t === "f500" ? "500强外企" : "其他知名"; }
     function tierTag(t) { return `<span class="tag ${t === "f500" ? "f500" : "notable"}">${tierLabel(t)}</span>`; }
+
+    function escapeAttr(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    function renderRefLinks(refs, label) {
+      const list = dedupeRefs(refs);
+      if (!list.length) return "";
+      const links = list.map(r => {
+        const cls = r.kind === "search" ? ' class="search-hint"' : "";
+        const text = escapeAttr(r.publisher ? r.publisher + " · " + r.title : r.title);
+        return `<a href="${escapeAttr(r.url)}"${cls} target="_blank" rel="noopener noreferrer" title="${escapeAttr(r.url)}">${text}</a>`;
+      }).join("");
+      return `<div class="source-links"><div class="src-kind">${label || "原文 / 搜索链接"}</div>${links}</div>`;
+    }
+
+    const PROFILE_EXTRA_REFS = {
+      "Microsoft": [{ publisher: "官方", title: "Microsoft Investor Relations", url: "https://www.microsoft.com/en-us/Investor/default.aspx" }],
+      "Amazon": [{ publisher: "官方", title: "Amazon jobs & news", url: "https://www.aboutamazon.com/news" }],
+      "Google": [{ publisher: "官方", title: "Alphabet Investor Relations", url: "https://abc.xyz/investor/" }],
+      "Meta": [{ publisher: "官方", title: "Meta Newsroom", url: "https://about.fb.com/news/" }],
+      "SAP": [{ publisher: "官方", title: "SAP News", url: "https://news.sap.com/" }],
+      "HP": [{ publisher: "Reuters", title: "HP to cut thousands of jobs", url: "https://www.reuters.com/technology/hp-cut-6000-jobs-2023-11-21/" }],
+      "Shopee (Sea)": [{ publisher: "官方", title: "Sea Limited IR", url: "https://www.sea.com/investor/home" }],
+      "Alibaba": [{ publisher: "官方", title: "Alibaba Group IR", url: "https://www.alibabagroup.com/en-US/investor-relations" }],
+      "Lazada": [{ publisher: "Reuters", title: "Lazada job cuts SEA", url: "https://www.reuters.com/technology/alibaba-backed-lazada-slashes-jobs-southeast-asia-sources-say-2023-01-18/" }]
+    };
+
+    function dedupeRefs(refs) {
+      const seen = new Set();
+      return (refs || []).filter(r => {
+        if (!r || !r.url || seen.has(r.url)) return false;
+        seen.add(r.url);
+        return true;
+      });
+    }
+
+    function buildSearchRefs(query, opts) {
+      const q = encodeURIComponent(query);
+      const refs = [
+        { publisher: "Google News", title: "搜索相关报道", url: `https://news.google.com/search?q=${q}`, kind: "search" },
+        { publisher: "Reuters", title: "站内搜索", url: `https://www.reuters.com/site-search/?query=${q}`, kind: "search" }
+      ];
+      if (opts && opts.marketName) {
+        const q2 = encodeURIComponent(`${query} ${opts.marketName}`);
+        refs.push({ publisher: "Google", title: `搜索 · ${opts.marketName}`, url: `https://www.google.com/search?q=${q2}&tbm=nws`, kind: "search" });
+      }
+      return refs;
+    }
+
+    function lookupNewsIndex(company) {
+      const norm = company.replace(/\s*\(.*/, "").trim();
+      const hit = Object.keys(NEWS_REF_INDEX).find(k =>
+        company === k || k === norm || company.startsWith(k) || k.startsWith(norm) || norm.startsWith(k.split(" ")[0])
+      );
+      return hit ? NEWS_REF_INDEX[hit] : [];
+    }
+
+    function newsRefs(item) {
+      const direct = item.refs ? [...item.refs] : [];
+      const indexed = lookupNewsIndex(item.company);
+      const search = buildSearchRefs(`${item.company} layoff restructuring APAC`, {
+        marketName: (item.countries || []).map(c => MARKET_NAMES[c] || c).join(" ")
+      });
+      return dedupeRefs([...direct, ...indexed, ...search]);
+    }
+
+    function profileRefs(company) {
+      const fromNews = lookupNewsIndex(company);
+      const extra = PROFILE_EXTRA_REFS[company] || PROFILE_EXTRA_REFS[company.split(" ")[0]] || [];
+      const search = buildSearchRefs(`${company} layoffs severance package APAC`);
+      return dedupeRefs([...fromNews, ...extra, ...search]);
+    }
+
+    function severanceRefs(row) {
+      let refs = [];
+      const keys = [`${row.company}|${row.market}`, `${row.company}|*`];
+      for (const k of keys) {
+        if (SEVERANCE_REF_INDEX[k]) { refs = refs.concat(SEVERANCE_REF_INDEX[k]); break; }
+      }
+      if (!refs.length) refs = refs.concat(lookupNewsIndex(row.company));
+      const mName = MARKET_NAMES[row.market] || row.market;
+      refs = refs.concat(LEGAL_REF_INDEX[row.market] || []);
+      refs = refs.concat(buildSearchRefs(`${row.company} severance redundancy ${mName}`, { marketName: mName }));
+      return dedupeRefs(refs);
+    }
 
     function getColor(name) {
       const all = [...F500_PROFILES, ...NOTABLE_PROFILES];
@@ -717,7 +1019,7 @@
         <div class="stat-card danger"><div class="label">裁员/优化事件</div><div class="value">${layoffs}</div><div class="sub">样本库 ${NEWS.length} 条</div></div>
         <div class="stat-card accent"><div class="label">500 强外企</div><div class="value">${f500}</div><div class="sub">档案 ${F500_PROFILES.length} 家</div></div>
         <div class="stat-card info"><div class="label">其他知名企业</div><div class="value">${notable}</div><div class="sub">档案 ${NOTABLE_PROFILES.length} 家</div></div>
-        <div class="stat-card warn"><div class="value">${withSev}</div><div class="label">补偿方案条目</div><div class="sub">跨市场对照</div></div>
+        <div class="stat-card warn"><div class="label">补偿方案条目</div><div class="value">${withSev}</div><div class="sub">跨市场对照 · 含链接</div></div>
         <div class="stat-card"><div class="value">7</div><div class="label">法定市场摘要</div><div class="sub">APAC ER 底线</div></div>`;
     }
 
@@ -731,6 +1033,7 @@
             <h3>${tierTag(n.tier)} ${n.company} · ${n.title}</h3>
             <p>${n.desc}</p>
             <p style="margin-top:0.35rem;color:var(--accent-light);font-size:0.78rem"><strong>规模：</strong>${n.scale} · <strong>补偿线索：</strong>${n.severanceHint}</p>
+            ${renderRefLinks(newsRefs(n))}
             <div class="timeline-tags">${tags}<span class="tag scale">${n.countries.map(c => MARKET_NAMES[c] || c).join(" · ")}</span></div>
           </div>
         </article>`;
@@ -759,7 +1062,8 @@
           <div class="severance-block"><strong>补偿 / 遣散框架</strong>${p.severance}</div>
           <div class="row-2"><div><span class="k">附加支持</span><div>${p.extras || "—"}</div></div>
           <div><span class="k">ER 风险</span><div>${p.risk || "—"}</div></div></div>
-          <div class="notes"><strong>来源：</strong>${p.source}</div>
+          <div class="notes"><strong>摘要来源：</strong>${p.source}</div>
+          ${renderRefLinks(profileRefs(p.company), "延伸报道 / 官方")}
         </div>`;
       }).join("");
     }
@@ -781,6 +1085,7 @@
           <td>${r.notice}</td>
           <td>${r.equity}</td>
           <td><span class="tag severance">${r.confidence}</span></td>
+          <td>${renderRefLinks(severanceRefs(r), "链接")}</td>
         </tr>`;
       }).join("");
     }
@@ -790,7 +1095,34 @@
         <div class="legal-card">
           <h3><span>${l.flag}</span> ${l.country}</h3>
           <ul>${l.points.map(p => `<li><strong>${p.k}：</strong>${p.v}</li>`).join("")}</ul>
+          ${renderRefLinks(LEGAL_REF_INDEX[l.code] || [], "官方法规 / 指引")}
         </div>`).join("");
+    }
+
+    function renderIndexPanel() {
+      document.getElementById("indexMethod").innerHTML = `
+        <h2>内容如何索引？</h2>
+        <ul>
+          <li><strong>动态总览</strong>：根据 Reuters / Bloomberg / 公司新闻稿整理的 ER 摘要；列表日期为<strong>栏目归档月</strong>，外链为支撑该条的原始报道（报道日期可能更早）。</li>
+          <li><strong>公司档案 & 补偿表</strong>：公开裁员报道 + 法定底线归纳；补偿数字为<strong>报道/惯例示意</strong>。</li>
+          <li><strong>法定底线</strong>：政府机关公开网页，可点击核实。</li>
+          <li><strong>非自动爬虫</strong>：当前为人工维护；需要时可接入 RSS / GitHub Actions 自动更新链接与摘要。</li>
+        </ul>`;
+      const seen = new Set();
+      const uniqueByUrl = refs => refs.filter(r => {
+        if (!r.url || seen.has(r.url)) return false;
+        seen.add(r.url);
+        return true;
+      });
+      const newsBlocks = NEWS.map(n => {
+        const refs = newsRefs(n);
+        if (!refs.length) return "";
+        return `<div style="margin-bottom:1rem;"><div style="font-size:0.85rem;color:var(--text);font-weight:600;margin-bottom:0.35rem;">${escapeAttr(n.company)} — ${escapeAttr(n.title)}</div>${renderRefLinks(refs, "")}</div>`;
+      }).join("");
+      const legalRefs = uniqueByUrl(Object.values(LEGAL_REF_INDEX).flat());
+      document.getElementById("indexAllRefs").innerHTML =
+        `<h3 style="font-size:0.9rem;color:var(--text);margin:0 0 0.5rem;">按动态归类的外链</h3>${newsBlocks}` +
+        `<h3 style="font-size:0.9rem;color:var(--text);margin:1.25rem 0 0.5rem;">官方法规汇总（${legalRefs.length}）</h3>${renderRefLinks(legalRefs, "")}`;
     }
 
     function applyFilters() {
@@ -818,6 +1150,7 @@
 
     renderStats();
     renderLegal();
+    renderIndexPanel();
     applyFilters();
   </script>
 </body>
