@@ -6,7 +6,7 @@
   }
 
   const UI = {
-    pageTitle: L("APAC ER News Update V2.0", "APAC ER News Update V2.0"),
+    pageTitle: L("APAC ER News Update", "APAC ER News Update"),
     subtitle: L(
       "亚太员工关系 · 裁员与组织优化 · 补偿金方案 · 500 强外企 & 知名企业追踪",
       "APAC employee relations · layoffs & restructuring · severance · F500 & notable employers"
@@ -14,8 +14,8 @@
     live: L("ER 情报", "ER intel"),
     updated: L("更新", "Updated"),
     intro: L(
-      "<strong>数据从哪来？</strong>看板内容<strong>不是自动爬虫</strong>，而是由 ER 场景整理的<strong>人工索引</strong>： Reuters / Bloomberg / 公司 IR 新闻稿、各国劳工部门官网、Fair Work / MOM 等公开指引。每条动态下方有<strong>「阅读原文」</strong>外链；补偿金额为<strong>报道归纳或政策框架示意</strong>，非雇主官方承诺；个案请以合同与解除协议为准。",
-      "<strong>Sources:</strong> Curated <strong>manual index</strong> (not a live crawler): Reuters / Bloomberg / company IR, labour ministry sites, Fair Work / MOM guidance. Each item has <strong>source links</strong>; severance figures are <strong>illustrative</strong> from reports or policy — not employer guarantees. Check contracts for live cases."
+      "<strong>数据从哪来？</strong>看板内容<strong>不是自动爬虫</strong>，而是由 ER 场景整理的<strong>人工索引</strong>： Reuters / Bloomberg / 公司 IR 新闻稿、各国劳工部门官网、Fair Work / MOM 等公开指引。有公开报道时，<strong>来源链接写在正文句末</strong>（不再单独挂一长串外链）。补偿金额为<strong>报道归纳或政策框架示意</strong>，非雇主官方承诺；个案请以合同与解除协议为准。",
+      "<strong>Sources:</strong> Curated <strong>manual index</strong> (not a live crawler): Reuters / Bloomberg / company IR, labour ministry sites, Fair Work / MOM guidance. Where a solid public URL exists, <strong>one inline link sits in the item text</strong> — no separate link blocks. Severance figures are <strong>illustrative</strong>; check contracts for live cases."
     ),
     tierF500: L("500强外企", "F500"),
     tierNotable: L("其他知名", "Notable"),
@@ -58,6 +58,7 @@
     statSevSub: L("跨市场对照 · 含链接", "Cross-market · linked"),
     statLegal: L("法定市场摘要", "Legal market briefs"),
     statLegalSub: L("APAC ER 底线", "APAC ER floors"),
+    sourceInText: L("来源", "Source"),
     readMore: L("原文 / 搜索链接", "Sources / search"),
     readExt: L("延伸报道 / 官方", "Further reports / official"),
     readLinks: L("链接", "Links"),
@@ -78,8 +79,8 @@
     searchSite: L("站内搜索", "Site search"),
     searchMarket: L("搜索", "Search"),
     footer1: L(
-      "APAC ER News Update V2.0 · 仅供 HR / ER 内部参考 · 不构成法律意见",
-      "APAC ER News Update V2.0 · HR/ER internal reference only · not legal advice"
+      "APAC ER News Update · 仅供 HR / ER 内部参考 · 不构成法律意见",
+      "APAC ER News Update · HR/ER internal reference only · not legal advice"
     ),
     footer2: L(
       "建议核实来源：公司 8-K / 投资者新闻稿、各国劳工部门指引、Reuters / Bloomberg、当地雇主协会、解除协议范本与 precedent cases",

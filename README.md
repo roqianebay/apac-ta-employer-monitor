@@ -2,6 +2,10 @@
 
 亚太员工关系（ER）资讯看板：**裁员、团队优化、补偿金/遣散方案**，区分 **500 强外企** 与 **其他知名企业**。
 
+> 原始 **APAC Talent Employer Policy Monitor** 已迁到独立仓库：  
+> https://github.com/roqianebay/apac-ta-employer-policy-monitor ·  
+> https://roqianebay.github.io/apac-ta-employer-policy-monitor/
+
 ## 本地预览
 
 ```powershell

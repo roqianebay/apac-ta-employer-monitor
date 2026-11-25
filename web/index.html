@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>APAC ER News Update V2.0</title>
+  <title>APAC ER News Update</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -354,7 +354,7 @@
   <header class="header">
     <div class="header-inner">
       <div class="logo-block">
-        <h1>APAC <span>ER News Update</span> V2.0</h1>
+        <h1>APAC <span>ER News Update</span></h1>
         <p id="ui-subtitle">亚太员工关系 · 裁员与组织优化 · 补偿金方案 · 500 强外企 & 知名企业追踪</p>
       </div>
       <div class="header-meta">
@@ -362,19 +362,14 @@
           <button type="button" data-lang="zh" class="active">中文</button>
           <button type="button" data-lang="en">EN</button>
         </div>
-        <span class="badge v2">V2.0</span>
         <span class="badge live" id="ui-live">ER Intel</span>
-        <span class="badge" id="lastUpdated">更新: 2026-11-23 · 含原文链接</span>
+        <span class="badge" id="lastUpdated">更新: 2026-11-23</span>
       </div>
     </div>
   </header>
 
   <main class="container">
-    <div class="intro-banner" id="ui-intro">
-      <strong>数据从哪来？</strong>看板内容<strong>不是自动爬虫</strong>，而是由 ER 场景整理的<strong>人工索引</strong>： Reuters / Bloomberg / 公司 IR 新闻稿、各国劳工部门官网、Fair Work / MOM 等公开指引。
-      每条动态下方有<strong>「阅读原文」</strong>外链；若归档日期与报道日期不一致，链接指向支撑该条判断的<strong>最接近的公开报道或官方法规</strong>。
-      补偿金额为<strong>报道归纳或政策框架示意</strong>，非雇主官方承诺；个案请以合同与解除协议为准。
-    </div>
+    <div class="intro-banner" id="ui-intro"></div>
 
     <section class="stats-grid" id="statsGrid"></section>
 
@@ -498,7 +493,7 @@
   </main>
 
   <footer class="footer">
-    <span id="ui-footer-1">APAC ER News Update V2.0 · 仅供 HR / ER 内部参考 · 不构成法律意见</span>
+    <span id="ui-footer-1">APAC ER News Update · 仅供 HR / ER 内部参考 · 不构成法律意见</span>
     <span id="ui-footer-2">建议核实来源：公司 8-K / 投资者新闻稿、各国劳工部门指引、Reuters / Bloomberg、当地雇主协会、解除协议范本与 precedent cases</span>
     <div class="hub-footer">
       <a href="https://roqianebay.github.io/apac-labor-hr-practice/er-dashboards.html" id="ui-hub-index">APAC People Policy Dictionary</a>
@@ -998,6 +993,29 @@
       return dedupeRefs([...direct, ...indexed, ...search]);
     }
 
+    /** Curated links only: item.refs first, else one Reuters row from NEWS_REF_INDEX (no Google/Reuters search). */
+    function timelineRefs(item) {
+      const direct = dedupeRefs((item.refs || []).filter(r => r && r.url && r.kind !== "search"));
+      if (direct.length) return direct.slice(0, 2);
+      const indexed = lookupNewsIndex(item.company).filter(r => r && r.url && r.kind !== "search" && !/site-search/i.test(r.url));
+      return dedupeRefs(indexed).slice(0, 1);
+    }
+
+    function inlineBodyRefs(item) {
+      const list = timelineRefs(item);
+      if (!list.length) return "";
+      const EL = window.ErNewsLang;
+      const pubLabel = (r) => {
+        const pub = EL && r.publisher ? EL.publisherLabel(r.publisher) : r.publisher;
+        return pub ? `${pub} · ${r.title}` : r.title;
+      };
+      const links = list.map(r =>
+        `<a href="${escapeAttr(r.url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-light);text-decoration:underline;text-underline-offset:2px">${escapeAttr(pubLabel(r))}</a>`
+      );
+      const lead = EL ? EL.t(EL.UI.sourceInText) : "来源";
+      return ` <span style="white-space:normal">（${lead}：${links.join(" · ")}）</span>`;
+    }
+
     function profileRefs(company) {
       const fromNews = lookupNewsIndex(company);
       const extra = PROFILE_EXTRA_REFS[company] || PROFILE_EXTRA_REFS[company.split(" ")[0]] || [];
@@ -1071,13 +1089,13 @@
         const hint = EL ? EL.itemField(n, "severanceHint") : n.severanceHint;
         const scaleL = EL ? EL.t(EL.UI.scale) : "规模";
         const hintL = EL ? EL.t(EL.UI.sevHint) : "补偿线索";
+        const bodyRefs = inlineBodyRefs(n);
         return `<article class="timeline-item ${hidden}">
           <time class="timeline-date">${n.date}</time>
           <div class="timeline-content">
             <h3>${tierTag(n.tier)} ${n.company} · ${title}</h3>
-            <p>${desc}</p>
+            <p>${desc}${bodyRefs}</p>
             <p style="margin-top:0.35rem;color:var(--accent-light);font-size:0.78rem"><strong>${scaleL}：</strong>${scale} · <strong>${hintL}：</strong>${hint}</p>
-            ${renderRefLinks(newsRefs(n), EL ? EL.t(EL.UI.readMore) : undefined)}
             <div class="timeline-tags">${tags}<span class="tag scale">${n.countries.map(c => (EL ? EL.marketName(c) : MARKET_NAMES[c]) || c).join(" · ")}</span></div>
           </div>
         </article>`;
@@ -1165,9 +1183,10 @@
       });
       const newsBlocks = window.NEWS.map(n => {
         const title = EL ? EL.itemField(n, "title") : n.title;
-        const refs = newsRefs(n);
+        const refs = timelineRefs(n);
         if (!refs.length) return "";
-        return `<div style="margin-bottom:1rem;"><div style="font-size:0.85rem;color:var(--text);font-weight:600;margin-bottom:0.35rem;">${escapeAttr(n.company)} — ${escapeAttr(title)}</div>${renderRefLinks(refs, "")}</div>`;
+        const desc = EL ? EL.itemField(n, "desc") : n.desc;
+        return `<div style="margin-bottom:1rem;font-size:0.82rem;color:var(--text-muted);"><strong style="color:var(--text)">${escapeAttr(n.company)} — ${escapeAttr(title)}</strong> ${escapeAttr(desc)}${inlineBodyRefs(n)}</div>`;
       }).join("");
       const legalRefs = uniqueByUrl(Object.values(LEGAL_REF_INDEX).flat());
       const newsHead = EL ? EL.t(EL.UI.indexNewsHead) : "按动态归类的外链";

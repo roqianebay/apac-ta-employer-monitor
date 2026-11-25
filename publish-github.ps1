@@ -15,7 +15,7 @@ $remotes = @(git remote 2>$null)
 if ($remotes -contains "origin") {
   Write-Host "Remote origin already set."
 } else {
-  & $Gh repo create $Name --public --source=. --remote=origin --description "APAC TA employer & peer company monitor (static dashboard)"
+  & $Gh repo create $Name --public --source=. --remote=origin --description "APAC ER News Update V2.0 (layoffs, severance, static dashboard)"
   if ($LASTEXITCODE -ne 0) {
     Write-Host "Create failed (repo may exist). Adding remote manually..."
     git remote add origin "https://github.com/$User/$Name.git"
@@ -23,6 +23,11 @@ if ($remotes -contains "origin") {
 }
 
 git push -u origin main
+
+& $Gh api "repos/$User/$Name/pages" -X POST -f build_type=workflow 2>$null | Out-Null
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Pages may already be enabled, or enable manually: Settings -> Pages -> GitHub Actions"
+}
 
 $Url = "https://$User.github.io/$Name/"
 Write-Host ""
