@@ -69,7 +69,7 @@
     kRisk: L("ER 风险", "ER risk"),
     kSource: L("摘要来源", "Source summary"),
     sevBlock: L("补偿 / 遣散框架", "Severance framework"),
-    hubIndex: L("看板总索引", "Dashboard index"),
+    hubIndex: L("APAC People Policy Dictionary", "APAC People Policy Dictionary"),
     hubLabor: L("流程与劳动法", "Process & labor law"),
     hubTalent: L("Talent Employer Monitor", "Talent Employer Monitor"),
     hubGov: L("政府政策 Monitor", "Gov policy monitor"),
